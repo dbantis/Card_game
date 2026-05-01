@@ -17,8 +17,11 @@ The round ends when a player has no more cards in their hand (and each player's 
 
                                      POINTS
 -Each card (from 2 to 10) has as many points as its number
+
 -The jack, the queen and the king (J,Q,K) have 10 points each
-The aces (A) have 11 points
+
+-The aces (A) have 11 points
+
 For each card we need to know its value, its suit (figure), and its points. In the game the score (points) of the players is maintained.
 Finally, when the game is completed, the points of all players are counted.
 
