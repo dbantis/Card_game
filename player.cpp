@@ -1,0 +1,187 @@
+Player::Player(int idx, string n)
+{
+    index=idx;
+    name=n;
+
+    points=0;                     
+    status=HASNTPLAYED;          
+    hasDrawnCard=false;
+}
+
+int Player::getIndex()const
+{
+    return index;
+}
+
+string Player::getName()const
+{
+    return name;
+}
+
+PlayerStatus Player::getStatus()const
+{
+    return status;
+}
+
+void Player::setStatus(PlayerStatus s)
+{
+    status=s;
+}
+
+int Player::getPoints()const
+{
+    return points;
+}
+
+void Player::setPoints(int p)
+{
+    points=p;
+}
+
+void Player::addPoints(int p)
+{
+    points+=p;
+}
+
+bool Player::getHasDrawnCard()const
+{
+    return hasDrawnCard;
+}
+
+void Player::setHasDrawnCard(bool b)
+{
+    hasDrawnCard=b;
+}
+
+Hand& Player::getHand()
+{
+    return hand;
+}
+
+const Hand& Player::getHand()const 
+{
+    return hand;
+}
+
+bool Player::playCard(Card* card)
+{
+    bool card_played=hand.removeCard(card);
+    if (card_played) 
+    {
+        status=PLAYED;
+        hasDrawnCard=false;
+    }   
+    return card_played;
+}
+
+void Player::drawCard(Card* card)
+{
+    hand.addCard(card);
+    hasDrawnCard=true;    
+}
+
+void Player::pass()
+{
+    if(hasDrawnCard)
+    {
+        status=PASSED;
+        hasDrawnCard=false;
+    }
+}
+
+bool Player::hasCards()const
+{
+    if(hand.numberOfCards())
+        return true;
+    return false;  
+}
+
+void Player::clearHand()
+{
+    hand.clear();
+    status=HASNOCARDSLEFT;
+}
+
+string statusToString(PlayerStatus status)
+{
+     switch (status)
+    {
+        case HASNTPLAYED:
+        return "Hasn't Played";
+
+        case PASSED:
+        return "Passed";
+
+        case PLAYED:
+        return "Played";
+
+        case HASNOCARDSLEFT:
+        return "Has No Cards Left";
+
+        case WONTHETRICK:
+        return "Won the Trick";
+
+        case MISSEDTURN:
+        return "Missed Turn";
+
+        default:
+        return "Unknown";
+    }
+}
+
+bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit) 
+{
+    
+    for(int i=0; i<game.getCurrentPlayersCount(); i++)
+    {
+        if(game.getPlayers()[i]->getPoints()>=pointsLimit)
+            return true;
+    }
+    return false;
+}
+
+bool hasTieForBestScore(const Game& game)  //1st version
+{
+    int numOfPlayers=game.getCurrentPlayersCount();
+    Player* temp;
+    for (int i = 0; i < numOfPlayers-1; i++) 
+    {
+        for (int j = 0; j < numOfPlayers-i-1; j++) 
+        { 
+            if(game.getPlayers()[i]->getPoints()>game.getPlayers()[i+1]->getPoints())
+                {
+                    temp=game.getPlayers()[i];
+                    game.getPlayers()[i]=game.getPlayers()[i+1];
+                    game.getPlayers()[i+1]=temp;
+                }
+        }
+        if(game.getPlayers()[0]->getPoints()==game.getPlayers()[1]->getPoints())
+            return true;
+    }
+    return false;
+}
+
+bool hasTieForBestScore(const Game& game) //2nd version
+{
+    if (game.getCurrentPlayersCount() <= 1) return false;
+    
+    int min=game.getPlayers()[0]->getPoints();
+    int count=0;
+    
+    for(int i=0; i<game.getCurrentPlayersCount()-1; i++)
+    {
+        if(game.getPlayers()[i+1]->getPoints()<min)
+        {
+            min=game.getPlayers()[i+1]->getPoints();
+        }
+    }
+    
+    for(int i=0; i<game.getCurrentPlayersCount(); i++)
+    {
+        if(game.getPlayers()[i]->getPoints()==min)
+            count++;
+    }
+    if(count>1)
+        return true;
+    return false;
+}
