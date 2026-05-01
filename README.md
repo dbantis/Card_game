@@ -1,6 +1,7 @@
                                 UML Diagram
 <img width="971" height="1028" alt="image" src="https://github.com/user-attachments/assets/6042270a-49b7-424f-ae0e-3fe84915652e" />
 
+
 This card game is called "Agonia" and it is played by 2 or 4 players with the entire deck of 52 cards. In each new round, the deck is shuffled, 7 cards are dealt to each player (hand) and a suit is placed on the table. The aim of the game for each player is to get as few points as possible in each round. The round ends when a player has no more cards in his hand.
 
                                    RULES
