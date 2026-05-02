@@ -140,27 +140,6 @@ bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit)
     return false;
 }
 
-bool hasTieForBestScore(const Game& game)  //1st version
-{
-    int numOfPlayers=game.getCurrentPlayersCount();
-    Player* temp;
-    for (int i = 0; i < numOfPlayers-1; i++) 
-    {
-        for (int j = 0; j < numOfPlayers-i-1; j++) 
-        { 
-            if(game.getPlayers()[i]->getPoints()>game.getPlayers()[i+1]->getPoints())
-                {
-                    temp=game.getPlayers()[i];
-                    game.getPlayers()[i]=game.getPlayers()[i+1];
-                    game.getPlayers()[i+1]=temp;
-                }
-        }
-        if(game.getPlayers()[0]->getPoints()==game.getPlayers()[1]->getPoints())
-            return true;
-    }
-    return false;
-}
-
 bool hasTieForBestScore(const Game& game) //2nd version
 {
     if (game.getCurrentPlayersCount() <= 1) return false;
