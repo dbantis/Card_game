@@ -140,7 +140,7 @@ bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit)
     return false;
 }
 
-bool hasTieForBestScore(const Game& game) //2nd version
+bool hasTieForBestScore(const Game& game) 
 {
     if (game.getCurrentPlayersCount() <= 1) return false;
     
