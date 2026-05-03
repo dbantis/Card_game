@@ -1,6 +1,7 @@
 
 <div align="center">
-  <h1> AGONIA-CARD GAME <small> (Work in progress...) </small></h1>
+  <h1> AGONIA-CARD GAME </h1>
+  <small>(Work in progress...)</small>
 </div>  
 
 This card game is called "**Agonia**". Ιt is played by 2 or 4 players with the entire deck of 52 cards. In each new round, the deck is shuffled, 7 cards are dealt to each player (hand) and a suit is placed on the table. The aim of the game for each player is to get as few points as possible in each round. The round ends when a player has no more cards in his hand.
