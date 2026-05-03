@@ -6,7 +6,7 @@
 This card game is called "**Agonia**". Ιt is played by 2 or 4 players with the entire deck of 52 cards. In each new round, the deck is shuffled, 7 cards are dealt to each player (hand) and a suit is placed on the table. The aim of the game for each player is to get as few points as possible in each round. The round ends when a player has no more cards in his hand.
 
 <div align="center">
-  <h1> UML Diagram </h1>
+  <h2> UML Diagram </h2>
 </div>      
 
 <img width="971" height="1028" alt="image" src="https://github.com/user-attachments/assets/6042270a-49b7-424f-ae0e-3fe84915652e" />
