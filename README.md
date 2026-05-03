@@ -1,14 +1,15 @@
-<div align="center">
-  <h1> UML Diagram </h1>
-</div>      
-
-<img width="971" height="1028" alt="image" src="https://github.com/user-attachments/assets/6042270a-49b7-424f-ae0e-3fe84915652e" />
 
 <div align="center">
   <h1> AGONIA-CARD GAME </h1>
 </div>  
 
 This card game is called "**Agonia**". Ιt is played by 2 or 4 players with the entire deck of 52 cards. In each new round, the deck is shuffled, 7 cards are dealt to each player (hand) and a suit is placed on the table. The aim of the game for each player is to get as few points as possible in each round. The round ends when a player has no more cards in his hand.
+
+<div align="center">
+  <h1> UML Diagram </h1>
+</div>      
+
+<img width="971" height="1028" alt="image" src="https://github.com/user-attachments/assets/6042270a-49b7-424f-ae0e-3fe84915652e" />
 
 <div align="center">
   <h1> RULES </h1>
@@ -42,7 +43,7 @@ For each card we need to know its value, its suit (figure), and its points. In t
 Finally, when the game is completed, the points of all players are counted.
 
 <div align="center">
-  <h1> ***Enjoy the game and have fun!*** </h1>
+  <h2><b><i> Enjoy the game and have fun! </i></b></h2>
 </div>
 
 **The game is currently in development. Work in progress...**
