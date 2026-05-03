@@ -12,7 +12,7 @@ This card game is called "**Agonia**". Ιt is played by 2 or 4 players with the 
 <img width="971" height="1028" alt="image" src="https://github.com/user-attachments/assets/6042270a-49b7-424f-ae0e-3fe84915652e" />
 
 <div align="center">
-  <h1> RULES </h1>
+  <h2> RULES </h2>
 </div>
                                                     
 Each player has the ability to play a card that has the same number or the same figure as the card on top of the table. If he does not have a matching card, then he must draw a card from the deck. If he still does not find a suitable card, then he passes. Each player has the right to draw a card from the deck or to pass even if he has a card available to play. 
