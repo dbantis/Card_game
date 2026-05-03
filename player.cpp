@@ -2,23 +2,23 @@ Player::Player(int idx, string n)
 {
     index=idx;
     name=n;
-
-    points=0;                     
+    
     status=HASNTPLAYED;          
+    points=0;                     
     hasDrawnCard=false;
 }
 
-int Player::getIndex()const
+int Player::getIndex() const
 {
     return index;
 }
 
-string Player::getName()const
+string Player::getName() const
 {
     return name;
 }
 
-PlayerStatus Player::getStatus()const
+PlayerStatus Player::getStatus() const
 {
     return status;
 }
@@ -28,7 +28,7 @@ void Player::setStatus(PlayerStatus s)
     status=s;
 }
 
-int Player::getPoints()const
+int Player::getPoints() const
 {
     return points;
 }
@@ -43,7 +43,7 @@ void Player::addPoints(int p)
     points+=p;
 }
 
-bool Player::getHasDrawnCard()const
+bool Player::getHasDrawnCard() const
 {
     return hasDrawnCard;
 }
@@ -58,7 +58,7 @@ Hand& Player::getHand()
     return hand;
 }
 
-const Hand& Player::getHand()const 
+const Hand& Player::getHand() const 
 {
     return hand;
 }
@@ -89,7 +89,7 @@ void Player::pass()
     }
 }
 
-bool Player::hasCards()const
+bool Player::hasCards() const
 {
     if(hand.numberOfCards())
         return true;
@@ -99,40 +99,39 @@ bool Player::hasCards()const
 void Player::clearHand()
 {
     hand.clear();
-    status=HASNOCARDSLEFT;
 }
 
 string statusToString(PlayerStatus status)
 {
-     switch (status)
+     switch(status)
     {
         case HASNTPLAYED:
-        return "Hasn't Played";
+            return "Hasn't Played";
 
         case PASSED:
-        return "Passed";
+            return "Passed";
 
         case PLAYED:
-        return "Played";
+            return "Played";
 
         case HASNOCARDSLEFT:
-        return "Has No Cards Left";
+            return "Has No Cards Left";
 
         case WONTHETRICK:
-        return "Won the Trick";
+            return "Won the Trick";
 
         case MISSEDTURN:
-        return "Missed Turn";
+            return "Missed Turn";
 
         default:
-        return "Unknown";
+            return "Unknown";
     }
 }
 
 bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit) 
 {
-    
-    for(int i=0; i<game.getCurrentPlayersCount(); i++)
+    int num_of_players=game.getCurrentPlayersCount();
+    for(int i=0; i<num_of_players; i++)
     {
         if(game.getPlayers()[i]->getPoints()>=pointsLimit)
             return true;
@@ -142,24 +141,25 @@ bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit)
 
 bool hasTieForBestScore(const Game& game) 
 {
-    if (game.getCurrentPlayersCount() <= 1) return false;
-    
-    int min=game.getPlayers()[0]->getPoints();
     int count=0;
+    int num_of_players=game.getCurrentPlayersCount();
     
-    for(int i=0; i<game.getCurrentPlayersCount()-1; i++)
+    int minimum_points=game.getPlayers()[0]->getPoints();
+    
+    for(int i=0; i<num_of_players-1; i++)
     {
-        if(game.getPlayers()[i+1]->getPoints()<min)
+        if(game.getPlayers()[i+1]->getPoints()<minimum_points)
         {
-            min=game.getPlayers()[i+1]->getPoints();
+            minimum_points=game.getPlayers()[i+1]->getPoints();
         }
     }
     
-    for(int i=0; i<game.getCurrentPlayersCount(); i++)
+    for(int i=0; i<num_of_players; i++)
     {
-        if(game.getPlayers()[i]->getPoints()==min)
+        if(game.getPlayers()[i]->getPoints()==minimum_points)
             count++;
     }
+    
     if(count>1)
         return true;
     return false;
