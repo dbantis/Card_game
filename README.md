@@ -15,6 +15,7 @@ The round ends when a player has no more cards in their hand (and each player's 
 2. **SEVENS**: If a player rolls a 7, then the next player draws two cards from the deck, unless he also has a 7. In this case, the next player will draw 4 cards from the deck and so on until a player is found who does not have a 7. If among the cards he/she will draw, he/she finds a 7, he can play it, but it is considered as if it were the first 7
 3. **EIGHTS**: If a player rolls an 8, he plays again. If he does not have a suitable card, he must draw from the deck and if he does not find a suitable card, he must be passed. A player can play as many "8s" as he/she has available in a row
 4. **NINES**: If a player rolls a 9, then the next player loses his turn. In the case of 2 players, the same player plays a second time
+
 -**Important note**: The player cannot win the round with any of the special cards, so if his last card is one of them, he must draw a new card from the deck.
 
                                                       POINTS
