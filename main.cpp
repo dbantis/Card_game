@@ -64,22 +64,21 @@ void handlePenaltyPhase(Game& game, Player* current) {
         }
     }
 
-Card ** getValidCards(Game& game, Player* current, int& outCount)
+Card** getValidCards(Game& game, Player* current, int& outCount)
 {
-    Player** players = game.getPlayers();
-    int number_of_cards = current->getHand().numberOfCards();
-    outCount = 0;
+    int number_of_cards=current->getHand().numberOfCards();
+    outCount=0;
 
-    if(game.getPenaltyStack() > 0)
+    if(game.getPenaltyStack()>0)
     {
         Card **sevens;
-        sevens = new Card *[number_of_cards];
+        sevens=new Card* [number_of_cards];
 
-        for(int i = 0; i < number_of_cards; i++)
+        for(int i=0; i<number_of_cards; i++)
         {
-            if(current->getHand().getCards()[i]->getValue() == 7)
+            if(current->getHand().getCards()[i]->getValue()==7)
             {
-                sevens[outCount++] = current->getHand().getCards()[i];
+                sevens[outCount++]=current->getHand().getCards()[i];
             }
         }
         return sevens;
@@ -87,78 +86,83 @@ Card ** getValidCards(Game& game, Player* current, int& outCount)
     return current->getHand().validRoundCards(game.getTable().topCard(), game.getTable().getHasDeclaredSuit(), game.getTable().getDeclaredSuit(), outCount);
 }
 
-void handleChoice(Game& game, Player *current, Card** validCards, int validCount, int choice, bool &turnEnded, bool &game_running)
+void handleChoice(Game& game, Player* current, Card** validCards, int validCount, int choice, bool &turnEnded, bool &game_running)
 {
-    turnEnded = false;
+    turnEnded=false;
 
-    if(choice == -1)
+    if(choice==-1)
     {
-        if(!(current->getHasDrawnCard()) && game.getPenaltyStack() == 0)
+        if(!(current->getHasDrawnCard()) && game.getPenaltyStack()==0)
         {
-            cout << current->getName() << " draws 1 card(s)." << endl;
-            current->getHand().addCard(game.getDeck().deal());        
+            game.replenishDeckIfNeeded(1);
+            cout<<current->getName()<<" draws 1 card(s)." <<endl;
+            current->drawCard(game.getDeck().deal());        
             current->setHasDrawnCard(true);
         }     
-        else if(!(current->getHasDrawnCard()) && game.getPenaltyStack() > 0) 
+        else if(!(current->getHasDrawnCard()) && game.getPenaltyStack()>0) 
         {
+            game.replenishDeckIfNeeded(game.getPenaltyStack());
             game.applyPenalty(current);
-            //turnEnded = true; 
         }
         else if(current->getHasDrawnCard())
         {
-            turnEnded = true;
-            cout << current->getName() << " passes." << endl;
+            turnEnded=true;
+            cout<<current->getName()<<" passes." <<endl;
         }
     }
-    else if(choice >= 0 && choice <= validCount-1)
+    else if(choice>=0 && choice<=validCount-1)
     {
-        Card* card = validCards[choice];
+        Card* card=validCards[choice];
 
         if(current->playCard(card))
         {
-            if(game.getPenaltyStack() > 0 && card->getValue() == 7)
-                cout << current->getName() << " successfully bounces the penalty with another 7!" << endl;
+            if(game.getPenaltyStack()>0 && card->getValue()==7)
+                cout<<current->getName()<<" successfully bounces the penalty with another 7!"<<endl;
         
             game.getTable().addCard(card);
             game.getTable().resetDeclaredSuit();
 
-            if(card->getEffect() == DRAW_TWO)
+            if(card->getEffect()==DRAW_TWO)
             {
-                cout << current->getName() << " raised the penalty stack!" << endl;
+                game.addPenaltyStack(2);
+                cout<<current->getName()<<" raised the penalty stack!"<<endl;
             }
-            else if(card->getEffect() == PLAY_AGAIN)
+            else if(card->getEffect()==PLAY_AGAIN)
             {
-                cout << current->getName() << " gets to play another card!" << endl;
+                game.setMustPlayAgain(true);
+                cout<<current->getName()<<" gets to play another card!"<<endl;
             }
-            else if(card->getEffect() == SKIP_NEXT)
+            else if(card->getEffect()==SKIP_NEXT)
             {
-                cout << "Nine played! Next player loses their turn." << endl;
+                game.setSkipNext(true);
+                cout<<"Nine played! Next player loses their turn."<<endl;
             }
-            else if(card->getEffect() == CHANGE_SUIT)
+            else if(card->getEffect()==CHANGE_SUIT)
             {
-                CardSuit newSuit = current->chooseSuit();
+                CardSuit newSuit=current->chooseSuit();
                 game.getTable().setDeclaredSuit(newSuit);
-                cout << current->getName() << " declares suit: " << suitToString(newSuit) << endl;
+                cout<<current->getName()<<" declares suit: "<<suitToString(newSuit)<<endl;
             }
 
             if(!(current->hasCards()))
             {
-                cout << current->getName() << " has no more cards. Round ends!" << endl;
-                game_running = false;
+                cout<<current->getName()<<" has no more cards. Round ends!"<<endl;
+                game_running=false;
             }
 
-            turnEnded = true;
+            turnEnded=true;
         }        
         else
         {
-            cout << "Error: Could not play the card. Please try again." << endl;
+            cout<<"Error: Could not play the card. Please try again."<<endl;
         }
     }
     else
     {
-        cout << "Invalid choice. Please pick a number from 0 to " << validCount - 1 << " or -1." << endl;
+        cout<<"Invalid choice. Please pick a number from 0 to "<<validCount-1 <<" or-1."<<endl;
     }
 }
+
 // ---------------------------------------------------------------------------
 // hasTieForBestScore
 // ---------------------------------------------------------------------------
