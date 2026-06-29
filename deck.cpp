@@ -1,4 +1,3 @@
-// =============================================================================
 // Deck.cpp
 // -----------------------------------------------------------------------------
 // Implements the Deck class: construction, card dealing, shuffling, and
@@ -10,7 +9,7 @@
 CardSuit operator++(CardSuit& s, int) 
 {
     CardSuit value=s; 
-    if (s==SPADE) 
+    if (s==CLUB) 
         s=HEART; 
     else 
         s=(CardSuit)((int)s+1);
@@ -22,10 +21,12 @@ Deck::Deck()
 {
     currentSize=0;
     capacity=52; 
+    cards = new Card*[capacity];
+    
     CardSuit s=HEART;
-    for(int i=0 ; i<4 ; i++)
+    for(int i=0; i<4; i++)
     {
-        for(int j=1 ; j<=13 ; j++)
+        for(int j=1; j<=13; j++)
         {
             if(j==1)
                 cards[currentSize]=new Ace(s,j,11);
@@ -87,12 +88,11 @@ Card* Deck::deal()
     if(currentSize==0)
         return nullptr;
     currentSize--;
-    return cards[currentSize-1];
+    return cards[currentSize];
 }
 
 void Deck::rebuildFromDiscard(Card** discardPile, int discardSize)
 {
-    currentSize=0;
     for(int i=0 ; i<discardSize-1 ; i++)
     {
         cards[currentSize]=discardPile[i];
