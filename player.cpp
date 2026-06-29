@@ -1,166 +1,100 @@
-Player::Player(int idx, string n)
-{
-    index=idx;
-    name=n;
-    
-    status=HASNTPLAYED;          
-    points=0;                     
-    hasDrawnCard=false;
-}
+// =============================================================================
+// Player.h
+// -----------------------------------------------------------------------------
+// Declares the Player class, which represents one participant in the game.
+//
+// Each Player has:
+//   - A name and index (their position at the table)
+//   - A Hand (the cards they currently hold)
+//   - A status (what happened on their last turn)
+//   - A cumulative points total (penalty points across all rounds)
+//   - A flag tracking whether they have already drawn a card this turn
+// =============================================================================
 
-int Player::getIndex() const
-{
-    return index;
-}
+#ifndef PLAYER_H
+#define PLAYER_H
 
-string Player::getName() const
-{
-    return name;
-}
+#include <string>
+using namespace std;
 
-PlayerStatus Player::getStatus() const
-{
-    return status;
-}
+#include "Hand.h"
+#include "Card.h"
 
-void Player::setStatus(PlayerStatus s)
-{
-    status=s;
-}
+// ---------------------------------------------------------------------------
+// PlayerStatus: describes what a player did on their most recent turn.
+// Used by the Game to track turn flow and decide when a round ends.
+// ---------------------------------------------------------------------------
+enum PlayerStatus {
+    HASNTPLAYED,     // Player has not yet taken a turn in this orbit
+    PASSED,          // Player drew a card but had nothing to play, so they passed
+    PLAYED,          // Player successfully played a card
+    HASNOCARDSLEFT,  // Player emptied their hand (wins the round)
+    WONTHETRICK,     // Player won the trick (reserved for future use)
+    MISSEDTURN       // Player's turn was skipped by a Nine card
+};
 
-int Player::getPoints() const
-{
-    return points;
-}
+// statusToString: converts a PlayerStatus to a human-readable string
+string statusToString(PlayerStatus status);
 
-void Player::setPoints(int p)
-{
-    points=p;
-}
 
-void Player::addPoints(int p)
-{
-    points+=p;
-}
+// =============================================================================
+// Player – A game participant
+// =============================================================================
+class Player {
+private:
+    string name;         // Display name (e.g., "Alice")
+    PlayerStatus status; // What happened on this player's last turn
+    int points;          // Cumulative penalty points across all rounds (lower is better)
+    bool hasDrawnCard;   // True if the player has already drawn a card this turn
+    Hand hand;           // The cards this player is currently holding
 
-bool Player::getHasDrawnCard() const
-{
-    return hasDrawnCard;
-}
+public:
+    // Constructor: sets up the player with a name
+    Player(string n);
 
-void Player::setHasDrawnCard(bool b)
-{
-    hasDrawnCard=b;
-}
+    // --- Identity getter ---
+    string getName() const;
 
-Hand& Player::getHand()
-{
-    return hand;
-}
+    // --- Status ---
+    PlayerStatus getStatus() const;
+    void setStatus(PlayerStatus s);
 
-const Hand& Player::getHand() const 
-{
-    return hand;
-}
+    // --- Points ---
+    int getPoints() const;
+    void setPoints(int p);
+    void addPoints(int p);   // Adds p to the current total (used at end of round)
 
-bool Player::playCard(Card* card)
-{
-    bool card_played=hand.removeCard(card);
-    if (card_played) 
-    {
-        status=PLAYED;
-        hasDrawnCard=false;
-    }   
-    return card_played;
-}
+    // --- Draw flag ---
+    bool getHasDrawnCard() const;
+    void setHasDrawnCard(bool b);
 
-void Player::drawCard(Card* card)
-{
-    hand.addCard(card);
-    hasDrawnCard=true;    
-}
+    // --- Hand access ---
+    Hand& getHand();             // Non-const: allows modifying the hand
+    const Hand& getHand() const; // Const: for read-only access
 
-void Player::pass()
-{
-    if(hasDrawnCard)
-    {
-        status=PASSED;
-        hasDrawnCard=false;
-    }
-}
+    // --- Actions ---
 
-bool Player::hasCards() const
-{
-    if(hand.numberOfCards())
-        return true;
-    return false;  
-}
+    // playCard(): removes the given card from the hand and updates status to PLAYED.
+    // Returns true if the card was found and removed, false otherwise.
+    bool playCard(Card* card);
 
-void Player::clearHand()
-{
-    hand.clear();
-}
+    // drawCard(): adds the given card to the hand and sets hasDrawnCard = true.
+    void drawCard(Card* card);
 
-string statusToString(PlayerStatus status)
-{
-     switch(status)
-    {
-        case HASNTPLAYED:
-            return "Hasn't Played";
+    // pass(): sets status to PASSED (player drew but could not play).
+    void pass();
 
-        case PASSED:
-            return "Passed";
+    // chooseSuit(): randomly selects and returns a CardSuit.
+    // Used by the AI when an Ace is played (no human input in auto-play mode).
+    CardSuit chooseSuit();
 
-        case PLAYED:
-            return "Played";
+    // --- Utility ---
 
-        case HASNOCARDSLEFT:
-            return "Has No Cards Left";
+    // hasCards(): returns true if the player has at least one card in hand
+    bool hasCards() const;
 
-        case WONTHETRICK:
-            return "Won the Trick";
+    // clearHand(): removes all cards from the hand (does NOT delete them)
+    void clearHand();
+};
 
-        case MISSEDTURN:
-            return "Missed Turn";
-
-        default:
-            return "Unknown";
-    }
-}
-
-bool hasPlayerReachedPointsLimit(const Game& game, int pointsLimit) 
-{
-    int num_of_players=game.getCurrentPlayersCount();
-    for(int i=0; i<num_of_players; i++)
-    {
-        if(game.getPlayers()[i]->getPoints()>=pointsLimit)
-            return true;
-    }
-    return false;
-}
-
-bool hasTieForBestScore(const Game& game) 
-{
-    int count=0;
-    int num_of_players=game.getCurrentPlayersCount();
-    
-    int minimum_points=game.getPlayers()[0]->getPoints();
-    
-    for(int i=0; i<num_of_players-1; i++)
-    {
-        if(game.getPlayers()[i+1]->getPoints()<minimum_points)
-        {
-            minimum_points=game.getPlayers()[i+1]->getPoints();
-        }
-    }
-    
-    for(int i=0; i<num_of_players; i++)
-    {
-        if(game.getPlayers()[i]->getPoints()==minimum_points)
-            count++;
-    }
-    
-    if(count>1)
-        return true;
-    return false;
-}
+#endif // PLAYER_H
