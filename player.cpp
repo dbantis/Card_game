@@ -1,100 +1,171 @@
 // =============================================================================
-// Player.h
+// Player.cpp
 // -----------------------------------------------------------------------------
-// Declares the Player class, which represents one participant in the game.
-//
-// Each Player has:
-//   - A name and index (their position at the table)
-//   - A Hand (the cards they currently hold)
-//   - A status (what happened on their last turn)
-//   - A cumulative points total (penalty points across all rounds)
-//   - A flag tracking whether they have already drawn a card this turn
+// Implements the Player class: player actions, state management, and the
+// statusToString helper.
 // =============================================================================
 
-#ifndef PLAYER_H
-#define PLAYER_H
-
-#include <string>
-using namespace std;
-
-#include "Hand.h"
-#include "Card.h"
+#include "Player.h"
+#include <cstdlib>   // for rand()
 
 // ---------------------------------------------------------------------------
-// PlayerStatus: describes what a player did on their most recent turn.
-// Used by the Game to track turn flow and decide when a round ends.
+// statusToString
 // ---------------------------------------------------------------------------
-enum PlayerStatus {
-    HASNTPLAYED,     // Player has not yet taken a turn in this orbit
-    PASSED,          // Player drew a card but had nothing to play, so they passed
-    PLAYED,          // Player successfully played a card
-    HASNOCARDSLEFT,  // Player emptied their hand (wins the round)
-    WONTHETRICK,     // Player won the trick (reserved for future use)
-    MISSEDTURN       // Player's turn was skipped by a Nine card
-};
+// Converts a PlayerStatus enum value to a human-readable string.
+string statusToString(PlayerStatus status) {
+    switch (status) {
+        case HASNTPLAYED:    return "Hasn't Played";
+        case PASSED:         return "Passed";
+        case PLAYED:         return "Played";
+        case HASNOCARDSLEFT: return "Has No Cards Left";
+        case WONTHETRICK:    return "Won the Trick";
+        case MISSEDTURN:     return "Missed Turn";
+        default:             return "Unknown";
+    }
+}
 
-// statusToString: converts a PlayerStatus to a human-readable string
-string statusToString(PlayerStatus status);
+
+// ---------------------------------------------------------------------------
+// Constructor
+// ---------------------------------------------------------------------------
+// Initializes the player with a name.
+// Status starts as HASNTPLAYED, points start at 0, hasDrawnCard starts false.
+Player::Player(string n) {
+    name         = move(n);   // move avoids an extra string copy
+    status       = HASNTPLAYED;
+    points       = 0;
+    hasDrawnCard = false;
+}
 
 
-// =============================================================================
-// Player – A game participant
-// =============================================================================
-class Player {
-private:
-    string name;         // Display name (e.g., "Alice")
-    PlayerStatus status; // What happened on this player's last turn
-    int points;          // Cumulative penalty points across all rounds (lower is better)
-    bool hasDrawnCard;   // True if the player has already drawn a card this turn
-    Hand hand;           // The cards this player is currently holding
+// ---------------------------------------------------------------------------
+// Identity getter
+// ---------------------------------------------------------------------------
 
-public:
-    // Constructor: sets up the player with a name
-    Player(string n);
+string Player::getName() const {
+    return name;
+}
 
-    // --- Identity getter ---
-    string getName() const;
 
-    // --- Status ---
-    PlayerStatus getStatus() const;
-    void setStatus(PlayerStatus s);
+// ---------------------------------------------------------------------------
+// Status
+// ---------------------------------------------------------------------------
 
-    // --- Points ---
-    int getPoints() const;
-    void setPoints(int p);
-    void addPoints(int p);   // Adds p to the current total (used at end of round)
+PlayerStatus Player::getStatus() const {
+    return status;
+}
 
-    // --- Draw flag ---
-    bool getHasDrawnCard() const;
-    void setHasDrawnCard(bool b);
+void Player::setStatus(PlayerStatus s) {
+    status = s;
+}
 
-    // --- Hand access ---
-    Hand& getHand();             // Non-const: allows modifying the hand
-    const Hand& getHand() const; // Const: for read-only access
 
-    // --- Actions ---
+// ---------------------------------------------------------------------------
+// Points
+// ---------------------------------------------------------------------------
 
-    // playCard(): removes the given card from the hand and updates status to PLAYED.
-    // Returns true if the card was found and removed, false otherwise.
-    bool playCard(Card* card);
+int Player::getPoints() const {
+    return points;
+}
 
-    // drawCard(): adds the given card to the hand and sets hasDrawnCard = true.
-    void drawCard(Card* card);
+void Player::setPoints(int p) {
+    points = p;
+}
 
-    // pass(): sets status to PASSED (player drew but could not play).
-    void pass();
+// Adds p penalty points to this player's running total
+void Player::addPoints(int p) {
+    points += p;
+}
 
-    // chooseSuit(): randomly selects and returns a CardSuit.
-    // Used by the AI when an Ace is played (no human input in auto-play mode).
-    CardSuit chooseSuit();
 
-    // --- Utility ---
+// ---------------------------------------------------------------------------
+// Draw flag
+// ---------------------------------------------------------------------------
 
-    // hasCards(): returns true if the player has at least one card in hand
-    bool hasCards() const;
+bool Player::getHasDrawnCard() const {
+    return hasDrawnCard;
+}
 
-    // clearHand(): removes all cards from the hand (does NOT delete them)
-    void clearHand();
-};
+void Player::setHasDrawnCard(bool b) {
+    hasDrawnCard = b;
+}
 
-#endif // PLAYER_H
+
+// ---------------------------------------------------------------------------
+// Hand access
+// ---------------------------------------------------------------------------
+
+Hand& Player::getHand() {
+    return hand;
+}
+
+const Hand& Player::getHand() const {
+    return hand;
+}
+
+
+// ---------------------------------------------------------------------------
+// hasCards
+// ---------------------------------------------------------------------------
+// Returns true if the player still has at least one card in their hand.
+bool Player::hasCards() const {
+    return hand.numberOfCards() > 0;
+}
+
+
+// ---------------------------------------------------------------------------
+// clearHand
+// ---------------------------------------------------------------------------
+// Empties the hand without deleting the Card objects (Deck owns them).
+void Player::clearHand() {
+    hand.clear();
+}
+
+
+// ---------------------------------------------------------------------------
+// playCard
+// ---------------------------------------------------------------------------
+// Attempts to remove `card` from the player's hand.
+// If successful: sets status to PLAYED and resets hasDrawnCard.
+// Returns true on success, false if the card was not found.
+bool Player::playCard(Card* card) {
+    if (hand.removeCard(card)) {
+        status       = PLAYED;
+        hasDrawnCard = false;
+        return true;
+    }
+    return false;
+}
+
+
+// ---------------------------------------------------------------------------
+// drawCard
+// ---------------------------------------------------------------------------
+// Adds `card` to the player's hand and marks that they have drawn this turn.
+void Player::drawCard(Card* c) {
+    if (c) {
+        hand.addCard(c);
+    }
+    hasDrawnCard = true;
+}
+
+
+// ---------------------------------------------------------------------------
+// pass
+// ---------------------------------------------------------------------------
+// Marks the player as having passed their turn (drew a card but could not play).
+void Player::pass() {
+    status       = PASSED;
+    hasDrawnCard = false;
+}
+
+
+// ---------------------------------------------------------------------------
+// chooseSuit
+// ---------------------------------------------------------------------------
+// Randomly picks one of the four suits and returns it.
+// This is the AI behavior when an Ace is played (no human input in auto-play mode).
+CardSuit Player::chooseSuit() {
+    int choice = rand() % 4;
+    return static_cast<CardSuit>(choice);
+}
