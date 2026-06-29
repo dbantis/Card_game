@@ -1,4 +1,4 @@
-// =============================================================================
+=============================================================================
 // Game.cpp
 // -----------------------------------------------------------------------------
 // Implements the Game class: round lifecycle, turn management, scoring,
@@ -146,9 +146,10 @@ Game::Game(Player* p1, Player* p2)
     skipNext=false;
     mustPlayAgain=false;
     penaltyStack=0;
+    noOfPlayers=2;
     players=new Player*[noOfPlayers];
-    players[1]=p1;
-    players[2]=p2;
+    players[0]=p1;
+    players[1]=p2;
 }
 Game::Game(Player* p1, Player* p2, Player* p3, Player* p4)
 {
@@ -156,66 +157,77 @@ Game::Game(Player* p1, Player* p2, Player* p3, Player* p4)
     skipNext=false;
     mustPlayAgain=false;
     penaltyStack=0;
+    noOfPlayers=4;
     players=new Player*[noOfPlayers];
-    players[1]=p1;
-    players[2]=p2;
-    players[3]=p3;
-    players[4]=p4;
+    players[0]=p1;
+    players[1]=p2;
+    players[2]=p3;
+    players[3]=p4;
 }
 
 void Game::startRound()
 {
-    getCurrentPlayer()->clearHand();
-    getCurrentPlayer()->setHasDrawnCard(false);
-    getCurrentPlayer()->setStatus(HASNTPLAYED);
-    
-    int number_of_cards=getCurrentPlayer()->getHand().numberOfCards();
-    
-    for(int i=0 ; i<noOfPlayers ; i++)
+    for(int i=0; i<noOfPlayers; i++)
     {
-        for(int j=0 ; j<number_of_cards ; j++)
+        int number_of_cards=players[i]->getHand().numberOfCards();
+        
+        for(int j=0; j<number_of_cards; j++)
+        {
             delete players[i]->getHand().getCards()[j];
+        }
+        
+        players[i]->clearHand();
+        players[i]->setHasDrawnCard(false);
+        players[i]->setStatus(HASNTPLAYED);
     }
     
-    for(int i=0 ; i<table.getPileSize() ; i++)
+    for(int i=0; i<table.getPileSize(); i++)
         delete table.getPile()[i];
-
     table.clearPile();
+    
     deck.reset();
     deck.shuffle();
     
-    for(int i=0 ; i<noOfPlayers*7 ; i++)
+    for(int i=0; i<7; i++)
     {
-        for(int j=0 ; j<noOfPlayers ; j++)
+        for(int j=0; j<noOfPlayers; j++)
             players[j]->drawCard(deck.deal());
     }
-        table.addCard(deck.deal());
-        penaltyStack=0;
-        skipNext=false;
-        mustPlayAgain=false;
-        currentPlayerIndex=0;
+    
+    table.addCard(deck.deal());
+        
+    penaltyStack=0;
+    skipNext=false;
+    mustPlayAgain=false;
+    currentPlayerIndex=0;
 }
     
 void Game::advanceTurn()
 {
     if(mustPlayAgain==true)
-        mustPlayAgain=false;
+        mustPlayAgain=false; 
     else
     {
-        if(currentPlayerIndex==noOfPlayers-1)
-            currentPlayerIndex=0;
-        currentPlayerIndex+=1;
+        currentPlayerIndex++;
+        if(currentPlayerIndex>=noOfPlayers)
+        {
+            currentPlayerIndex = 0;
+            for(int i = 0; i < noOfPlayers; i++) 
+            {
+                players[i]->setStatus(HASNTPLAYED); 
+            }
+        }
     } 
-    if(currentPlayerIndex==noOfPlayers-1)
-    {
-        players[currentPlayerIndex]->setStatus(HASNTPLAYED);
-    }
+    
     if(skipNext==true)
     {
-        cout<< "\n" << players[currentPlayerIndex]->getName() << " misses their turn!" << endl;
-        players[currentPlayerIndex]->setStatus(MISSEDTURN);
-        skipNext=false;
-        currentPlayerIndex++;
+        cout<< "\n"<<players[currentPlayerIndex]->getName()<<" misses their turn!"<<endl; 
+        players[currentPlayerIndex]->setStatus(MISSEDTURN); 
+        skipNext=false; 
+        
+        currentPlayerIndex++; 
+        if(currentPlayerIndex>=noOfPlayers)
+            currentPlayerIndex=0;
     }
 }
 
@@ -233,7 +245,9 @@ void Game::replenishDeckIfNeeded(int neededCards)
 void Game::applyPenalty(Player* p)
 {
     for(int i=0; i<penaltyStack; i++)
-        players[currentPlayerIndex]->drawCard(deck.deal());
-    cout << players[currentPlayerIndex]->getName() << " absorbs " << penaltyStack << " penalty card(s)!"<<endl;
+        p->drawCard(deck.deal());
+    cout<<p->getName()<<" absorbs "<<penaltyStack<<" penalty card(s)!"<<endl;
+    
+    penaltyStack=0;
+    p->setHasDrawnCard(false);
 }
-
